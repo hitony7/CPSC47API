@@ -21,6 +21,91 @@ var config = {
     }
 };
 
+//Endpoint /EMPLOYEE/SALARY  //Not tested  //INPUT of SSN GIVES SALARY
+app.get('/EMPLOYEE/SALARY', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        // create Request object
+        var request = new sql.Request();
+        if(req.query["SSN"]!=undefined){
+            request.query('SELECT * FROM EMPLOYEE', function (err, results) {
+                if (err) console.log(err)
+                // send records as a response
+                var stadiumid = req.query["SSN"]
+                for(var i in results.recordset){
+                    if(results.recordset[i]["SSN"]==SSN){
+                        res.send(results.recordset[i])
+                        return
+                    }
+                }
+                var respond = {
+                    "status":"Not Found"
+                }
+                res.send(respond);
+            });
+        }else{
+            var respond = {
+                "status":"Not Found"
+            }
+            res.send(respond)
+        }
+        
+    });
+});
+
+//Endpoint EMPLOYEE SALRAY, Update salary
+app.put('EMPLOYEE/SALARY', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        //console.log(req.params);
+        //console.log(req.query);
+        //console.log(req.body);
+        //Check if all values
+        if(req.body["SSN"]==undefined || req.body["AMOUNT"]==undefined){
+            res.send({
+                "Status": "Fali: Parameters are not complete"
+            });
+            return
+        };
+        
+        var request = new sql.Request();
+        request.query('SELECT * FROM EMPLOYEE', function (err, results) {
+            if (err) console.log(err)
+            // send records as a response
+            for(var i in results.recordset){
+                if(results.recordset[i]["SSN"]==req.params["SSN"]){
+                    query_construction = "UPDATE EMPLOYEE "+"SET [Salary] = '"+ req.body["AMOUNT"] + "' WHERE [SSN] = "+req.params["SSN"] + " ;";
+
+                    request.query(query_construction, function (err, results) {
+                        if(err){
+                            console.log(err)
+                            res.send({
+                                "Status": "Fail" + err
+                            });
+                            return;
+                        }
+                        res.send({
+                            "Status": "Success"
+                        });
+                    });
+                    return
+                }
+            }
+            res.send({
+                "status":"Not Found"
+            });
+        });
+
+        var request = new sql.Request();
+        
+        
+    });
+});
+
+
 //Endpoint stadiumlist
 app.get('/stadiumlist', function (req, res) {
     // connect to your database
