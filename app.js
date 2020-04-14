@@ -132,6 +132,31 @@ app.get('/stadiumlist', function (req, res) {
 });
 
 //Endpoint stadiumlist
+app.get('/stadiumlist', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        // create Request object
+        var request = new sql.Request();
+
+        // query to the database and get the records
+        request.query('SELECT * FROM STADIUM', function (err, results) {
+            if (err) console.log(err)
+            // send records as a response
+            var s = []
+            for(var i in results.recordset){
+                var temp = {
+                    "Stadium_ID":results.recordset[i]["Stadium_ID"]
+                }
+                s.push(temp)
+            }
+            res.send(s);
+        });
+    });
+});
+
+//Endpoint stadiumlist
 app.get('/stadium', function (req, res) {
     // connect to your database
     sql.connect(config, function (err) {
