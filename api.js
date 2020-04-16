@@ -19,8 +19,9 @@ app.get('/', function(req, res){
   });
 //End of Root
   
-//Customer endpoint  
-let customer = `customerall`; //name of STORED PROCEDURE in DB      
+//Customer endpoint
+//@return first and last name and SSN   
+let customer = `CustomerAll`; //name of STORED PROCEDURE in DB      
 //req = request parameter (Input) || res = result parameter (Output)   this is for express 
 app.get('/customer', function(req,res){  
     //CHECK IF req is VALID parameters if needed
