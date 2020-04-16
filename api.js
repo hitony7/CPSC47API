@@ -20,7 +20,7 @@ app.get('/', function(req, res){
 //End of Root
   
 //Customer endpoint  
-let customer = `customeralls`; //name of STORED PROCEDURE in DB      
+let customer = `customerall`; //name of STORED PROCEDURE in DB      
 //req = request parameter (Input) || res = result parameter (Output)   this is for express 
 app.get('/customer', function(req,res){  
     //CHECK IF req is VALID parameters if needed
@@ -41,7 +41,7 @@ app.get('/customer', function(req,res){
     });
 });
 
-
+//node is running on localhost
 var server = app.listen(80, function () {
     console.log('Server is running..');
 });
