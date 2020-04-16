@@ -30,7 +30,7 @@ app.get('/EMPLOYEE/SALARY', function (req, res) {
         // create Request object
         var request = new sql.Request();
         if(req.query["SSN"]!=undefined){
-            request.query('SELECT * FROM EMPLOYEE', function (err, results) {
+            request.query('SELECT Salary FROM EMPLOYEE WHERE [SSN] = ' + req.params["SSN"] +';'  , function (err, results) {
                 if (err) console.log(err)
                 // send records as a response
                 var stadiumid = req.query["SSN"]
@@ -55,8 +55,27 @@ app.get('/EMPLOYEE/SALARY', function (req, res) {
     });
 });
 
+//Endpoint /EMPLOYEE/SALARYTOTAL  
+
+
+app.get('/EMPLOYEE/SALARYTOTAL', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        // create Request object
+        var request = new sql.Request();
+
+        request.query('SELECT SUM(salary) FROM EMPLOYEE ', function (err, results) {
+            if (err) console.log(err)
+            res.send(results.recordset);
+        });
+        
+    });
+});
+
 //Endpoint EMPLOYEE SALRAY, Update salary
-app.put('EMPLOYEE/SALARY', function (req, res) {
+app.put('/EMPLOYEE/SALARY', function (req, res) {
     // connect to your database
     sql.connect(config, function (err) {
         if (err) console.log(err);
@@ -64,9 +83,17 @@ app.put('EMPLOYEE/SALARY', function (req, res) {
         //console.log(req.query);
         //console.log(req.body);
         //Check if all values
+
         if(req.body["SSN"]==undefined || req.body["AMOUNT"]==undefined){
             res.send({
-                "Status": "Fali: Parameters are not complete"
+                "Status": "Fail: Parameters are not complete"
+            });
+            return
+        };
+
+        if(req.body["AMOUNT"] < 0){
+            res.send({
+                "Status": "Must be greater than 0(Postive value)"
             });
             return
         };
@@ -131,32 +158,7 @@ app.get('/stadiumlist', function (req, res) {
     });
 });
 
-//Endpoint stadiumlist
-app.get('/stadiumlist', function (req, res) {
-    // connect to your database
-    sql.connect(config, function (err) {
-        if (err) console.log(err);
-
-        // create Request object
-        var request = new sql.Request();
-
-        // query to the database and get the records
-        request.query('SELECT * FROM STADIUM', function (err, results) {
-            if (err) console.log(err)
-            // send records as a response
-            var s = []
-            for(var i in results.recordset){
-                var temp = {
-                    "Stadium_ID":results.recordset[i]["Stadium_ID"]
-                }
-                s.push(temp)
-            }
-            res.send(s);
-        });
-    });
-});
-
-//Endpoint stadiumlist
+//Endpoint stadium  
 app.get('/stadium', function (req, res) {
     // connect to your database
     sql.connect(config, function (err) {
