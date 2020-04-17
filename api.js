@@ -102,6 +102,53 @@ app.get('/EMPLOYEE/SALARYTOTAL', function(req,res){
     });
 });
 
+//PUT EMPLOYEE/SALARY (Employee_SSN)  (AMOUNT) 
+//@return updatedsalary
+let UpdateSalary = `UpdateSalary @SSN, @AMOUNT`; //name of STORED PROCEDURE in DB      
+//req = request parameter (Input) || res = result parameter (Output)   this is for express 
+app.put('/EMPLOYEE/SALARY', function(req,res){  
+    //CHECK IF req is VALID parameters if needed
+    if(req.query["SSN"] == undefined || ""){
+        //IF NULL THEN 
+        res.send({
+            "Status": "Fail: SSN needs to be inputed"
+        });
+        return
+    } 
+    if(req.query["Amount"] == undefined || ""){
+        //IF NULL THEN 
+        res.send({
+            "Status": "Fail: Amount needs to be inputed"
+        });
+        return
+    } else if (req.query["Amount"] < 0){
+         //IF Negative
+        res.send({
+            "Status": "Fail: Amount needs Postive Value"
+        });
+        return
+    }
+    //here
+    sql.connect(config, function (err) {//DB CONNECTION 
+        if(err) console.log(err);       //IF CONNECTION FAILS ERROR MSG
+        var request = new sql.Request();  //NEW REQUEST 
+        //parameterized SQL queries  
+                    //Name   //Type    //Input
+        request.input('SSN', sql.Int,req.query["SSN"]); 
+        request.input('AMOUNT', sql.Float,req.query["Amount"]); 
+        //run the customer STORED PROCEDURE, with parameter of error, results(output from DB), fields(Input for DB) 
+        request.query(UpdateSalary,(error, results, fields) => { //DB QUERY
+            if(error){
+                //IF QUERY FAILS ERROR MSG
+                res.send(error.message);
+                return console.error(error.message);
+            }
+            //SUCCESS
+            res.send(results.recordset);  //this only has the info 
+            //res.send(results);  this include recordset ,output, rowaffected
+        });
+    });
+});
 
 //node is running on localhost
 var server = app.listen(80, function () {
