@@ -150,6 +150,52 @@ app.put('/EMPLOYEE/SALARY', function(req,res){
     });
 });
 
+//AverageSeatPriceInSec 'Regular Season: Game 21', South
+
+
+//Endpoint /STADIUM/SEATS_AVG (GAME_ID) (SEAT SECTION)
+//@return AVG SEAT PRICE 
+let AverageSeatPriceInSec = `AverageSeatPriceInSec @GameID ,@SeatSection`;//name of STORED PROCEDURE in DB    anything with @ is a parameter  
+//req = request parameter (Input) || res = result parameter (Output)   this is for express 
+app.get('/STADIUM/SEATS_AVG', function(req,res){  
+    //CHECK IF req is VALID parameters if needed
+    if(req.query["GameID"] == undefined || ""){
+        //IF NULL THEN 
+        res.send({
+            "Status": "Fail: A Game needs to be inputed"
+        });
+        return
+    }
+
+    if(req.query["SeatSection"] == undefined || ""){
+        //IF NULL THEN 
+        res.send({
+            "Status": "Fail: A SeatSection needs to be inputed"
+        });
+        return
+    }
+    //here
+    sql.connect(config, function (err) {//DB CONNECTION 
+        if(err) console.log(err);       //IF CONNECTION FAILS ERROR MSG
+        var request = new sql.Request();  //NEW REQUEST 
+        //parameterized SQL queries  if you look at GetEmployeeSalary string it will replace @SSN with the ssn 
+                    //Name   //Type    //Input
+        request.input('GameID', sql.VarChar,req.query["GameID"]); 
+        request.input('SeatSection', sql.VarChar,req.query["SeatSection"]); 
+        //run the customer STORED PROCEDURE, with parameter of error, results(output from DB), fields(Input for DB)
+        request.query(AverageSeatPriceInSec ,(error, results, fields) => { //DB QUERY
+            if(error){
+                //IF QUERY FAILS ERROR MSG
+                res.send(error.message);
+                return console.error(error.message);
+            }
+            //SUCCESS
+            res.send(results.recordset);  //this only has the info 
+            //res.send(results);  this include recordset ,output, rowaffected
+        });
+    });
+});
+
 //node is running on localhost
 var server = app.listen(80, function () {
     console.log('Server is running..');
