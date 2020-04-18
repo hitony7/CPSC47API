@@ -230,6 +230,41 @@ app.get('/GAME/SEATS_AVG/ALL', function(req,res){
     });
 });
 
+//Endpoint GET EMPLOYEE/PLAYER/ALL_STATS (EMPLOYEE_SSN)  
+//@return player stats
+let GetPlayerStats = `GetPlayerStats @SSN`;//name of STORED PROCEDURE in DB    anything with @ is a parameter  
+//req = request parameter (Input) || res = result parameter (Output)   this is for express 
+app.get('/EMPLOYEE/PLAYER/ALL_STATS', function(req,res){  
+    //CHECK IF req is VALID parameters if needed
+    if(req.query["SSN"] == undefined || ""){
+        //IF NULL THEN 
+        res.send({
+            "Status": "Fail: A SSN needs to be inputed"
+        });
+        return
+    }
+    //here
+    sql.connect(config, function (err) {//DB CONNECTION 
+        if(err) console.log(err);       //IF CONNECTION FAILS ERROR MSG
+        var request = new sql.Request();  //NEW REQUEST 
+        //parameterized SQL queries  if you look at GetEmployeeSalary string it will replace @SSN with the ssn 
+                    //Name   //Type    //Input
+        request.input('SSN', sql.Int,req.query["SSN"]); 
+        //run the customer STORED PROCEDURE, with parameter of error, results(output from DB), fields(Input for DB)
+        request.query(GetPlayerStats ,(error, results, fields) => { //DB QUERY
+            if(error){
+                //IF QUERY FAILS ERROR MSG
+                res.send(error.message);
+                return console.error(error.message);
+            }
+            //SUCCESS
+            res.send(results.recordset);  //this only has the info 
+            //res.send(results);  this include recordset ,output, rowaffected
+        });
+    });
+});
+
+
 //node is running on localhost
 var server = app.listen(80, function () {
     console.log('Server is running..');
