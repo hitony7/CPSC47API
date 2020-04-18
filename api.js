@@ -264,6 +264,45 @@ app.get('/EMPLOYEE/PLAYER/ALL_STATS', function(req,res){
     });
 });
 
+//Game_ID, Date_played, Home_Team, Away_Team, Stadium_ID
+//Endpoint  STADIUM/ ALL_GAME_INFO (GAME_ID)
+//@return T OF F
+let AddNewGame = `AddNewGame @Game_ID, @Date_played, @Home_Team, @Away_Team, @Stadium_ID`;//name of STORED PROCEDURE in DB    anything with @ is a parameter  
+//req = request parameter (Input) || res = result parameter (Output)   this is for express 
+app.post('/STADIUM/ALL_GAME_INFO', function(req,res){  
+    //CHECK IF req is VALID parameters if needed
+    if(req.query["Game_ID"] == undefined || ""){
+        //IF NULL THEN 
+        res.send({
+            "Status": "Fail: A Game_ID needs to be inputed"
+        });
+        return
+    }
+    //here
+    sql.connect(config, function (err) {//DB CONNECTION 
+        if(err) console.log(err);       //IF CONNECTION FAILS ERROR MSG
+        var request = new sql.Request();  //NEW REQUEST 
+        //parameterized SQL queries  if you look at GetEmployeeSalary string it will replace @SSN with the ssn 
+                    //Name   //Type    //Input
+        request.input('Game_ID', sql.VarChar,req.query["Game_ID"]); 
+        request.input('Date_played', sql.Date,req.query["Date_played"]); 
+        request.input('Home_Team', sql.VarChar,req.query["Home_Team"]); 
+        request.input('Away_Team', sql.VarChar,req.query["Away_Team"]); 
+        request.input('Stadium_ID', sql.VarChar,req.query["Stadium_ID"]); 
+        //run the customer STORED PROCEDURE, with parameter of error, results(output from DB), fields(Input for DB)
+        request.query(AddNewGame ,(error, results, fields) => { //DB QUERY
+            if(error){
+                //IF QUERY FAILS ERROR MSG
+                res.send(error.message);
+                return console.error(error.message);
+            }
+            //SUCCESS
+            res.send("Status: Success NewGame Added");  //SUCCESS RETURN
+            //res.send(results);  this include recordset ,output, rowaffected
+        });
+    });
+});
+
 
 //node is running on localhost
 var server = app.listen(80, function () {
