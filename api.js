@@ -390,6 +390,342 @@ app.get('/OWNER', function (req, res) {
     });
 });
 
+//David's Part Start
+//Endpoint stadiumlist
+app.get('/stadiumlist', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        // create Request object
+        var request = new sql.Request();
+
+        // query to the database and get the records
+        request.query('SELECT * FROM STADIUM', function (err, results) {
+            if (err) console.log(err)
+            // send records as a response
+            var s = []
+            for(var i in results.recordset){
+                var temp = {
+                    "Stadium_ID":results.recordset[i]["Stadium_ID"]
+                }
+                s.push(temp)
+            }
+            res.send(s);
+        });
+    });
+});
+
+//Endpoint stadiumlist
+app.get('/stadium', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        // create Request object
+        var request = new sql.Request();
+
+        if(req.query["stadiumid"]!=undefined){
+            request.query('SELECT * FROM STADIUM', function (err, results) {
+                if (err) console.log(err)
+                // send records as a response
+                var stadiumid = req.query["stadiumid"]
+                for(var i in results.recordset){
+                    if(results.recordset[i]["Stadium_ID"]==stadiumid){
+                        res.send(results.recordset[i])
+                        return
+                    }
+                }
+                var respond = {
+                    "status":"Not Found"
+                }
+                res.send(respond);
+            });
+        }else{
+            var respond = {
+                "status":"Not Found"
+            }
+            res.send(respond)
+        }
+        
+    });
+});
+
+//Endpoint Customer
+app.get('/customer', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        // create Request object
+        var request = new sql.Request();
+
+        request.query('SELECT * FROM CUSTOMER', function (err, results) {
+            if (err) console.log(err)
+            res.send(results.recordset);
+        });
+        
+    });
+});
+
+//Endpoint Customer, Update 
+app.put('/customer/:ssn', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        //console.log(req.params);
+        //console.log(req.query);
+        //console.log(req.body);
+        //Check if all values
+        if(req.body["fname"]==undefined || req.body["lname"]==undefined){
+            res.send({
+                "Status": "Fali: Parameters are not complete"
+            });
+            return
+        };
+        
+        var request = new sql.Request();
+        request.query('SELECT * FROM CUSTOMER', function (err, results) {
+            if (err) console.log(err)
+            // send records as a response
+            for(var i in results.recordset){
+                if(results.recordset[i]["SSN"]==req.params["ssn"]){
+                    query_construction = "UPDATE CUSTOMER "+"SET [Fname] = '"+ req.body["fname"] + "' ,[Lname] = '"+req.body["lname"] + "' WHERE [SSN] = "+req.params["ssn"] + " ;";
+
+                    request.query(query_construction, function (err, results) {
+                        if(err){
+                            console.log(err)
+                            res.send({
+                                "Status": "Fail" + err
+                            });
+                            return;
+                        }
+                        res.send({
+                            "Status": "Success"
+                        });
+                    });
+                    return
+                }
+            }
+            res.send({
+                "status":"Not Found"
+            });
+        });
+
+        var request = new sql.Request();
+        
+        
+    });
+});
+
+//Endpoint Customer, add new customer
+app.post('/customer', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        //console.log(req.params);
+        //console.log(req.query);
+        //console.log(req.body);
+        //Check if all values
+        if(req.body["ssn"] ==undefined || req.body["fname"]==undefined || req.body["lname"]==undefined){
+            res.send({
+                "Status": "Fali: Parameters are not complete"
+            });
+            return
+        };
+        
+        var request = new sql.Request();
+        query_construction = "INSERT INTO CUSTOMER VALUES " + "("+req.body["ssn"]+ ",'" + req.body["fname"]+ "','"+ req.body["lname"]+"');"
+        console.log(query_construction);
+        request.query(query_construction, function (err, results) {
+            if(err){
+                console.log(err)
+                res.send({
+                    "Status": "Fail " + err
+                });
+                return;
+            }
+            res.send({
+                "Status": "Success"
+            });
+        });
+
+        
+        
+    });
+});
+
+
+
+
+
+//1. Endpoint medical_staff/treats
+app.get('/medical_staff/treats', function (req, res) {
+    // connect to your database
+    console.log(req.query);
+        //console.log(req.query);
+        //console.log(req.body);
+        //Check if all value
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        
+        // create Request object
+        var request = new sql.Request();
+        query_construction = 'SELECT [Player_SSN] FROM [TREATS] WHERE ' + '[Med_SSN] = ' + req.query["med_ssn"] +';'
+        request.query(query_construction, function (err, results) {
+            if (err) console.log(err)
+            var response = {
+                "MED_SSN":req.query["med_ssn"],
+                "Player_SSN":[]
+            }
+
+            for(var i in results.recordset){
+                response["Player_SSN"].push(results.recordset[i]["Player_SSN"])
+            }
+            res.send(response);
+        });
+        
+    });
+});
+
+
+//2. Endpoint ORDER/ORDER_DISH_NAME
+app.get('/order/order_dish_name', function (req, res) {
+    // connect to your database
+    console.log(req.query);
+        //console.log(req.query);
+        //console.log(req.body);
+        //Check if all value
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        
+        // create Request object
+        var request = new sql.Request();
+        query_construction = 'SELECT [Dish_Name] FROM [ORDER_DISH_NAME] WHERE ' + '[ORDER_ID] = ' + req.query["order_id"] +';'
+        request.query(query_construction, function (err, results) {
+            if (err) console.log(err)
+            var response = {
+                "ORDER_ID":req.query["order_id"],
+                "DISH_NAME":[]
+            }
+
+            for(var i in results.recordset){
+                response["DISH_NAME"].push(results.recordset[i]["Dish_Name"])
+            }
+            res.send(response);
+        });
+        
+    });
+});
+
+
+//3. Endpoint /team
+app.get('/team', function (req, res) {
+    // connect to your database
+        //console.log(req.query);
+        //console.log(req.body);
+        //Check if all value
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        
+        // create Request object
+        var request = new sql.Request();
+        query_construction = "SELECT  [EMPLOYEE].SSN, [EMPLOYEE].Fname, [EMPLOYEE].LName FROM    [EMPLOYEE], [PLAYER], [TEAM] WHERE   [EMPLOYEE].[SSN] = [PLAYER].[Player_SSN] AND [EMPLOYEE].[Team_Name] = [TEAM].[Team_Name] AND [TEAM].[Team_Name] = \'" + req.query["team_name"] + "\';";
+        request.query(query_construction, function (err, results) {
+            if (err) console.log(err)
+            var response = {
+                "PLAYER_ID":req.query["team_name"],
+                "PLAYER_NAME":[]
+            }
+            console.log(results.recordset);
+            for(var i in results.recordset){
+                var name = results.recordset[i]["Fname"]+' '+results.recordset[i]["LName"]
+                response["PLAYER_NAME"].push(name)
+            }
+            res.send(response);
+        });
+        
+    });
+});
+
+//Endpoint /teamrecord
+app.put('/teamrecord/:team_name/:amount', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+        if(req.params["team_name"]==undefined || req.params["amount"]==undefined){
+            res.send({
+                "Status": "Fali: Parameters are not complete"
+            });
+            return
+        };
+        if(req.params["amount"]=='1'){
+            stat = 'Win'
+        }else if(req.params["amount"]=='-1'){
+            stat = 'Lose'
+        }else{
+            res.send({
+                "Status": "Fali: Not Correct Parameter"
+            });
+            return
+        }
+        var request = new sql.Request();
+        request.query('UpdateTeam'+ stat +' @TEAM_NAME=\'' + req.params["team_name"]+'\'', function (err, results) {
+            if (err){
+                console.log(err)
+                res.send({
+                    "status":"fail"
+                });
+            }
+
+            res.send({
+                "status":"Success"
+            });
+        });
+
+        var request = new sql.Request();
+        
+        
+    });
+});
+
+//Endpoint UpdateCUSTOMER, Update Customer Data
+app.put('/updatecustomer/:ssn', function (req, res) {
+    // connect to your database
+    sql.connect(config, function (err) {
+        if (err) console.log(err);
+
+        if(req.params["ssn"] ==undefined || req.body["fname"]==undefined || req.body["lname"]==undefined){
+            res.send({
+                "Status": "Fali: Parameters are not complete"
+            });
+            return
+        };
+        
+        var request = new sql.Request();
+        query_construction = "UpdateCustomer @SSN = " + req.params["ssn"] + ", @FNAME = \'" + req.body["fname"] + "\', @LNAME = \'" + req.body["lname"] + "\';";
+
+        request.query(query_construction, function (err, results) {
+            if(err){
+                console.log(err)
+                res.send({
+                    "Status": "Fail " + err
+                });
+                return;
+            }
+            res.send({
+                "Status": "Success"
+            });
+        });
+
+        
+        
+    });
+});
+
+
+//David's Part End Here
+
 
 
 //node is running on localhost
