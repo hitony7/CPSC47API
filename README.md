@@ -4,7 +4,7 @@ API For Stadium Management Project
 ### STACK
 We used:\
 \
-Programming : Node.js with express,bodyParser.\
+Programming : Node.js with express.\
 DB: Microsoft SQL Server hosted on AWS\
 DBMS: Microsoft sql server management studio\
 Testing: Postman
