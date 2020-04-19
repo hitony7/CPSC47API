@@ -303,6 +303,94 @@ app.post('/STADIUM/ALL_GAME_INFO', function(req,res){
     });
 });
 
+// Endpoint ticket, get cost of ticket depending on seat
+// @return Cost of a seat in stadium
+let GetAvailableSeats = 'GetAvailableSeats @StadiumID' // name of STORED PROCEDURE
+let GetSeatPrice = 'GetSeatPrice @SeatNum' // name of STORED PROCEDURE
+app.get('/STADIUM/SEATS/TICKET', function (req, res) {
+    // Check if stadium is invalid
+    if (req.query["StadiumID"] == undefined) {
+        res.send({
+            "Status": "Fail: StadiumID DNE"
+        });
+        return
+    };
+    // Check if seat number is invalid
+    if (req.query["SeatNumber"] == undefined) {
+        res.send({
+            "Status": "Fail: SeatNumber DNE"
+        });
+        return
+    };
+    sql.connect(config, function (err) {
+        / Check for errors/
+        if (err) console.log(err);
+        // New request
+        var request = new sql.Request();
+        request.input('StadiumID', sql.VarChar, req.query["StadiumID"]);
+        request.query(GetAvailableSeats, (error, result, fields) => {
+            if (error) {
+                // If the query fails return error message
+                res.send(error.message);
+                return console.error(error.message);
+            }
+            // Go through every seat in the stadium to find the required seat
+            for (var i in result.recordset) {
+                if (result.recordset[i]["Seat_number"] == req.query["SeatNumber"] && result.recordset[i]["Status"] == 0) {
+                    var respond = {
+                        "Status": "Seat is occupied"
+                    }
+                    res.send(respond);
+                    return
+                } else if (result.recordset[i]["Seat_number"] == req.query["SeatNumber"]) {
+                    // If requested seat is not occupied, determine its price
+                    var request2 = new sql.Request();
+                    request2.input('SeatNum', sql.Int, req.query["SeatNumber"]);
+                    request2.query(GetSeatPrice, (error, results, fields) => {
+                        if (error) {
+                            // If the query fails return error message
+                            res.send(error.message);
+                            return console.error(error.message);
+                        }
+                        // If query2 succeeds return results
+                        res.send(results.recordset);
+                    });
+                }
+            }
+        });
+    });
+});
+
+// Endpoint /Owner, gets financial data 
+// @return the gross profit, losses, and net profit
+let GetFinancialData = 'GetFinancialData @OwnerName'; // name of STORED PROCEDURE in DB 
+app.get('/OWNER', function (req, res) {
+    // Check if there is not name
+    if (req.query["oname"] == undefined) {
+        res.send({
+            "Status": "Fail: DNE Owner Name"
+        });
+        return
+    };
+    sql.connect(config, function (err) {
+        // Check for errors
+        if (err) console.log(err);
+        // New request
+        var request = new sql.Request();
+        request.input('OwnerName', sql.VarChar, req.query["oname"]);
+        request.query(GetFinancialData, (error, results, fields) => {
+            if (error) {
+                // If the query fails return error message
+                res.send(error.message);
+                return console.error(error.message);
+            }
+            // If query succeeds return results
+            res.send(results.recordset);
+        });
+    });
+});
+
+
 
 //node is running on localhost
 var server = app.listen(80, function () {
