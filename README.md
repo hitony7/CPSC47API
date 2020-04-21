@@ -4,6 +4,19 @@ API For Stadium Management Project<br/>
 <br/>
 The database we built is to address the issue in the management of data in stadiums, ticket sales, maintenance of facilities, etc. We created an API that integrates the ticket sale system, item management system, team management system, and other stadium related systems and made it simpler for end users to access related data.
 
+---
+### Table of Contents
+
+- [Built With](#built-with)
+- [Prerequisites](#prerequisites) 
+- [Run](#run)  
+- [Usage](#usage)  
+- [Our Design](#our-design)
+   - [ER Diagram](#er-diagram)
+   - [RM Diagram](#rm-diagram)
+- [Contributors](#contributors)
+- [We did we learn?](#we-did-we-learn)
+---
 
 ### Built With
 We used:\
@@ -62,11 +75,13 @@ We used created a relational database(MSSQL) using the diagrams below.
 
 
 ### ER Diagram
-
+![ER](/screenshots/471%20ERD.png)
 
 
 ### RM Diagram
 
+
+![RM](/screenshots/RM%20.png?raw=true "RM")
 
 
 ## Contributors
