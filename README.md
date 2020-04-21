@@ -24,7 +24,7 @@ We used:\
 Programming : Node.js with express.\
 DB: Microsoft SQL Server hosted on AWS\
 DBMS: Microsoft sql server management studio\
-Testing: Postman
+Testing and documentation: [Postman](https://documenter.getpostman.com/view/11109555/Szf52oX8?version=latest)
 
 ### Prerequisites
 
